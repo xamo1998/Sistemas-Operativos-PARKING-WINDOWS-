@@ -1,0 +1,586 @@
+<html><head>
+    <title>Sistemas Operativos II - Segunda práctica evaluable</title>
+</head>
+<body>
+    <h1><center>PRÁCTICAS DE SISTEMAS OPERATIVOS II</center></h1>
+    <h2><center>SEGUNDA PRÁCTICA EVALUABLE</center></h2>
+    <h2><center>Aparcando II</center></h2>
+<hr>
+    <ol>
+        <li><h3>Enunciado.</h3>
+            Esta funcionamiento de esta práctica es muy similar a la anterior,
+            con algunas diferencias que se explican en este documento, entre las
+            que destacan:
+            <ol>
+              <li>Se usarán llamadas de la API de WIN32</li>
+              <li>Habrá un único proceso, eso sí, con varios hilos</li>
+              <li>Se proporciona una biblioteca de enlazado dinámico, DLL, en lugar
+                  de una de enlazado estático</li>
+              <li>Desaparecen los chóferes: para aparcar o desaparcar coches se
+                  creará un hilo nuevo</li>
+              <li>Tampoco es necesario programar prioridades: FIFO, aparcar o desaparcar</li>
+              <li>No se requiere de ningún proceso extra que duerma para avisar
+                  del fin de la simulación</li>
+              <li>Aparecen cuatro manejadoras más, además de las de llegadas,
+                  para gestionar las salidas de cada algoritmo</li>
+              <li>No hay buzón de paso de mensajes para comunicar aparcamientos
+                  y salidas</li>
+            </ol>
+            <br>
+            El programa propuesto constará de un único fichero fuente,
+            <code>parking2.cpp</code>, cuya adecuada compilación producirá
+            el ejecutable <code>parking2.exe</code>. Se trata de simular mediante
+            un programa que realice llamadas a la API de WIN32
+            la gestión de memoria de un sistema operativo que use
+            particiones de tamaño dinámico. Para ello, se establece el
+            símil con el problema de elegir el mejor aparcamiento para un coche
+            de todos los posibles en una acera. Según se va ejecutando el programa, 
+            se ha de ver una imagen parecida a la siguiente:
+            <br><br>
+            <center><img alt="Captura de pantalla" src="parking2.png"></center>
+            <br><br>
+            Los algoritmos, características de acera, calzada y coches son iguales
+            a los correspondientes de la práctica anterior.  En particular, también
+            se requiere que los coches aparquen en orden numérico consecutivo en
+            cada algoritmo.
+            <br><br>
+            <code>Parking2</code> acepta un máximo de dos argumentos por
+            la línea de órdenes. Si no se introducen argumentos, se imprimirá
+            un mensaje con la forma de uso del programa por el canal de
+            error estándar. En el caso de teclear un argumento, dicho argumento
+            será un número entero mayor o igual que cero 
+            relacionado con la rapidez con que se producen los acontecimientos
+            en el programa. Cero indica la máxima rapidez y números
+            mayores suponen una rapidez progresivamente menor. Finalmente,
+            si son dos los parámetros introducidos, el primero es idéntico
+            al caso anterior y el segundo será una "D", indicando que se
+            desea que el programa produzca información de depuración por
+            el canal de errores estándar.
+            <br><br>
+            Para facilitar la tarea, tenéis a vuestra disposición
+            una biblioteca de funciones de enlazado dinámico
+            <code>parking2.dll</code> y un fichero de cabeceras,
+            <code>parking2.h</code>.
+            Gracias a la biblioteca, muchas de las funciones no las tendréis
+            que programar sino que invocarlas a la DLL, tal como se
+            explica en la <a href="../sesion9.htm">sesión novena</a>.
+            <br><br>
+            La biblioteca creará un hilo adicional a los vuestros por
+            cada algoritmo para su funcionamiento interno, de los cuales no
+            tendréis que ocuparos. Una descripción
+            detallada de las funciones de la biblioteca aparece más abajo 
+            en esta misma página.
+            <br><br>
+            El programa, desde vuestro punto de vista, se simplifica
+            bastante. Se ha de llamar a la función <code>PARKING2_inicio</code>
+            de la DLL. El hilo dormirá 30 segundos e invocará a la función
+            <code>PARKING2_fin</code>, para acabar con la simulación.
+            <br><br>
+            Se deben programar cuatro funciones, una por algoritmo, que serán
+            llamadas por la DLL cada vez que un coche llegue y cuatro funciones
+            a las que la DLL llamará cuando un coche tenga que marcharse. Dichas
+            <i>funciones de rellamada</i> son registradas en la función
+            <code>PARKING2_inicio</code> de la DLL.
+            <br><br>
+            Los prototipos de los dos tipos de funciones de rellamada,
+            se describen aquí:
+            <ul>
+                <li><code><strong>int funciOn_llegada(HCoche hc);
+                    </strong></code><br>
+                    La DLL llamará a una de estas funciones cuando llegue un nuevo
+                    coche. La respuesta que debe devolver vuestro código
+                    indicará qué se debe hacer con ese coche. -1 indica
+                    que no hay sitio para él y debe encolarse. Un valor entre
+                    0 y 79 significa la posición a partir de la cual se debe
+                    aparcar el coche.  Además, si devolvemos -2, indicaremos
+                    a la biblioteca que no queremos procesar más coches de
+                    ese algoritmo, lo que puede ser útil para anular uno o
+                    varios algoritmos para depurar los demás.
+                    Esta función también deberá crear un
+                    nuevo hilo de ejecución para que aparque el coche con
+                    ayuda de la función <code>PARKING2_aparcar</code> de la DLL.
+                    La función, sin embargo, no debe esperar a que el hilo
+                    recién creado acabe de aparcar el coche.</li>
+                <li><code><strong>int funciOn_salida(Hcoche hc);
+                    </strong></code><br>
+                    La función es llamada cuando ha expirado el tiempo de
+                    aparcamiento de un coche. Al igual que ocurría con
+                    la función anterior, se debe crear un nuevo hilo de ejecución
+                    que saque al coche del aparcamiento, invocando a la función
+                    <code>PARKING2_desaparacar</code> de la DLL. Tampoco esperará esta
+                    función a que el hilo acabe. Debe devolver 0 en caso normal
+                    y -1 en caso de error.</li>
+            </ul>
+            <br><br>
+            La funciones <code>PARKING2_aparcar</code> y <code>PARKING2_desaparcar</code> son
+            especiales puesto que gestionan el movimiento de los coches automáticamente
+            mediante funciones de rellamada a vuestro código.  Estos son sus prototipos
+            con la correspondiente explicación:
+            <ul>
+                <li><code><strong>int PARKING2_aparcar(HCoche,void *datos,
+                                             TIPO_FUNCION_APARCAR_COMMIT,
+                                             TIPO_FUNCION_PERMISO_AVANCE,
+                                             TIPO_FUNCION_PERMISO_AVANCE_COMMIT);
+                    </strong></code><br>
+                    La DLL puede llamar a la función de llegada en cualquier
+                    orden y es responsabilidad del programador que los coches se
+                    aparquen en orden numérico.  Para ello, se debe invocar
+                    la función <code>PARKING2_aparcar</code> del hilo que
+                    toque y no invocar a la función del hilo del coche
+                    siguiente hasta haber recibido la rellamada de <i>aparcar
+                    commit</i>.  Esta rellamada indica que la biblioteca ha tomado
+                    nota de la anterior llamada y ya se puede invocar al siguiente.
+                    <br><br>
+                    El avance del coche también se regula mediante dos funciones
+                    de rellamada que se especifican en esta función.  Cada vez
+                    que un coche quiere avanzar, la DLL invoca a nuestra función
+                    de <i>permiso avance</i>.  Debemos bloquearnos, sin consumir CPU,
+                    hasta que el avance sea seguro.  En esos momentos, la DLL produce
+                    el avance en el coche y nos avisa a través de la
+                    función <i>permiso avance commit</i>.</li>
+                <li><code><strong>int PARKING2_desaparcar(HCoche,void *datos,
+                                             TIPO_FUNCION_PERMISO_AVANCE,
+                                             TIPO_FUNCION_PERMISO_AVANCE_COMMIT);
+                    </strong></code><br>
+                    La descripción de esta función es equivalente
+                    a la de la función anterior, con la salvedad de que,
+                    al no importar el orden en que se desaparca, no es necesaria
+                    una función de confirmación (<i>commit</i>) en
+                    este caso.</li>
+            </ul>
+            <br><br>
+            <h4>Características adicionales que programar</h4>
+            <ul>
+                <li>El programa no debe consumir CPU apreciablemente
+                    en los modos de retardo mayor o igual que 1.
+                    para comprobar el consumo de CPU, podéis arrancar
+                    el administrador de tareas de Windows, mediante
+                    la pulsación de las teclas CTRL+ALT+SUPR.
+                    Observad, no obstante, que en las aulas de informática
+                    puede que esta opción esté deshabilitada.</li>
+                <li><strong>IMPORTANTE</strong>: Aunque no se indique
+                    explícitamente en el enunciado, parece obvio que
+                    se necesitarán objetos de sincronización en diferentes
+                    partes del programa.</li>
+            </ul> 
+            <br><br>
+            <h4>Biblioteca <code>parking.dll</code></h4>
+            Con estra práctica se trata de que aprendáis a sincronizar y
+            comunicar hilos en Windows. Su objetivo no es la programación.
+            Es por ello que se os suministra una biblioteca dinámica de
+            funciones ya programadas para tratar de que no tengáis que
+            preocuparos por la presentación por pantalla, la gestión de
+            estructuras de datos (colas, pilas, ...) , etc. También servirá
+            para que se detecten de un modo automático errores que se
+            produzcan en vuestro código. Para que vuestro programa funcione,
+            necesitáis la biblioteca <code>parking.dll</code>
+            y el fichero de cabeceras <code>parking2.h</code>.
+            <h5>Ficheros necesarios:</h5>
+            <ul>
+                <li><code>parking.dll (ver. 2.2)</code>: 
+                    <a href="WINDOWS/parking2.dll">Descárgalo de aquí</a>.</li>
+                <li><code>parking2.h (ver. 2.0)</code>:
+                    <a href="WINDOWS/parking2.h">Descárgalo de aquí</a>.</li>
+            </ul>
+            <br><br>
+            Las funciones que la biblioteca exporta para que las uséis son:
+            <ul>
+                <li><code><strong>int PARKING2_inicio(TIPO_FUNCION_LLEGADA f_llegadas[],
+                    TIPO_FUNCION_SALIDA f_salidas[],LONG intervalo, BOOL d)
+                    </strong></code><br>
+                    El hilo principal debe llamar a esta función cuando desee
+                    que la simulación comience. La función devuelve -1
+                    si se ha producido un error. Los argumentos son:
+                    <ol>
+                        <li><code>f_llegadas</code>: es un array de cuatro
+                            elementos. Contiene los punteros a las funciones
+                            de vuestro programa que queréis que la DLL invoque
+                            cada vez que llega un coche nuevo para cada
+                            algoritmo. El prototipo de
+                            las funciones se ha especificado más arriba.</li>
+                        <li><code>f_salidas</code>: Lo mismo que el parámetro
+                            anterior, pero para las funciones que son invocadas
+                            cada vez que ha concluido el tiempo que debe permanecer
+                            un coche aparcado y tiene que salir.</li>
+                        <li><code>intervalo</code>: lentitud de ejecución. Es el valor
+                            que se ha pasado como primer argumento al programa.</li>
+                        <li><code>d</code>: flag que indica si se desea
+                            que la biblioteca produzca información de
+                            depuración por el canal de errores estándar.</li>
+                    </ol></li>
+                <li><code><strong>void PARKING2_aparcar(HCoche hc,void *datos,
+                                             void (*fCommit)(HCoche),
+                                             void (*fPermisoAvance)(HCoche),
+                                             void (*fPermisoAvanceCommit)(HCoche))
+                    </strong></code><br>
+                    Se invoca esta función cuando queremos que aparezca por
+                    la pantalla la animación de un coche aparcando y siempre
+                    respetando el orden numérico de los coches:
+                    <ol>
+                        <li><code>hc</code>: manejador del coche que queremos aparcar.</li>
+                        <li><code>datos</code>: puntero de datos que podemos asociar al
+                            coche para recuperarlos en cualquier otro momento.</li>
+                        <li><code>fCommit</code>: manejadora que será invocada cuando
+                            la DLL haya anotado la salida del coche.</li>
+                        <li><code>fPermisoAvance</code>: manejadora que es llamada por la
+                            DLL antes de efectuar un movimiento del coche para aparcar.
+                            A través del manejador del coche que se nos pasa, podremos
+                            obtener su información.  En particular, su posición
+                            (funciones <code>PARING2_getX()</code> y <code>PARKING2_getY()</code>),
+                            la posición a la que desea ir
+                            (funciones <code>PARING2_getX2()</code> y <code>PARKING2_getY2()</code>),
+                            el puntero a los datos que hemos asociado al coche
+                            (función <code>PARKING2_getDatos()</code>), etc.
+                            La función se debe bloquear sin consumo de CPU hasta que
+                            sea seguro para el coche el avance.</li>
+                        <li><code>fPermisoAvanceCommit</code>: esta manejadora será
+                            invocada por la DLL cuando ha hecho efectivo el avance del coche.
+                            En este caso, las coordenadas (<i>x</i>,<i>y</i>) se corresponden
+                            con la posición ya avanzada del coche y (<i>x2</i>,<i>y2</i>)
+                            son las coordenadas de la posición antes de avanzar.</li>
+                    </ol></li>
+                <li><code><strong>void PARKING2_desaparcar(HCoche hc,void *datos,
+                                             void (*fPermisoAvance)(HCoche),
+                                             void (*fPermisoAvanceCommit)(HCoche))
+                    </strong></code><br>
+                    Idéntica a la función anterior, sólo que para que se muestre
+                    la salida de un coche.  En este caso no aparece la función <i>commit</i>
+                    pues se hace innecesaria, al no ser un requisito que desaparquen en un
+                    determinado orden.</li>
+                <li><code><strong>int PARKING2_getNUmero(HCoche hc)<br>
+                                  int PARKING2_getLongitud(HCoche hc)<br>
+                                  int PARKING2_getPosiciOnEnAcera(HCoche hc)<br>
+                                  int PARKING2_getColor(HCoche hc)<br>
+                                  int PARKING2_getX(HCoche hc)<br>
+                                  int PARKING2_getY(HCoche hc)<br>
+                                  int PARKING2_getX2(HCoche hc)<br>
+                                  int PARKING2_getY2(HCoche hc)<br>
+                                  int PARKING2_getAlgoritmo(HCoche hc)<br>
+                                  unsigned long PARKING2_getTServ(HCoche hc)<br>
+                                  void *PARKING2_getDatos(HCoche hc)<br>
+                    </strong></code><br>
+                    Todas estas funciones dan información relativa al coche cuyo
+                    manejador se pasa como parámetro.  Dicha información es,
+                    respectivamente:
+                    <ol>
+                      <li>número del coche</li>
+                      <li>longitud del coche</li>
+                      <li>posición <i>x</i> en la acera donde ese coche va a
+                          aparcar o -1 si todavía no está decidido</li>
+                      <li>color del coche</li>
+                      <li>coordenada <i>x</i> de la posición del coche donde se encuentra</li>
+                      <li>lo mismo para la coordenada <i>y</i></li>
+                      <li>coordenada <i>x</i> de la posición a la que quiere avanzar el
+                          coche (función de permiso de avance) o de la que viene
+                          (función de confirmación de permiso de avance)</li>
+                      <li>idem coordenada <i>y</i></li>
+                      <li>algoritmo al que pertenece el coche (<code>PRIMER_AJUSTE</code>,
+                          <code>SIGUIENTE_AJUSTE</code>, <code>MEJOR_AJUSTE</code> y
+                          <code>PEOR_AJUSTE</code>, según vienen definidas en el
+                          fichero de cabeceras)</li>
+                      <li>tiempo de servicio en unidades de tiempo de la simulación</li>
+                      <li>puntero de datos que se le ha asignado al coche en la función de
+                          aparcar</li>
+                    </ol></li>
+                <li><code><strong>int PARKING2_isAceraOcupada(int algoritmo,int pos)
+                    </strong></code><br>
+                    Devuelve verdadero si la posición (0-79) de la acera (0-3)
+                    indicadas en sus argumentos está ocupada por un coche, desde
+                    el punto de vista de la biblioteca.  Solamente debe usarse como
+                    depuración.  El estado de las aceras en cada momento lo
+                    debe gestionar vuestra aplicación con sus propias variables.</li>
+                <li><code><strong>int PARKING2_fin(void)
+                    </strong></code><br>
+                    Se debe llamar a esta función cuando se desee terminar la
+                    simulación. Devolverá -1, si la simulación
+                    acabó por un error.</li>
+            </ul>
+            <br><br>
+            <h4>Sincronización interna de la DLL</h4>
+            La sincronización interna de la DLL está basada en un 
+            <i>mutex</i> por cada algoritmo.
+            El esquema de sincronización interna es el siguiente:
+<pre>
+    Mutex Mu[nAlgoritmos];
+    Mu[x]=1;
+    [...]
+    SimulaciOn: (un hilo por cada algoritmo)
+    ===========
+    mientras no haya que acabar
+      Calcular el tiempo de la prOxima salida o llegada
+      Dormir hasta ese tiempo o si nos avisan de coches reciEn aparcados/desaparcados
+
+      Wait(Mu[algoritmo]);
+        if (hay coches reciEn aparcados)
+          calcular su tiempo de salida
+          pasarlos a la lista de aparcados
+        if (hay coches reciEn desaparcados)
+          borrar los coches del sistema
+      Signal(Mu[algoritmo]);
+      
+      mientras el tiempo de la prOxima llegada sea menor que el reloj
+        if (lista de espera no estA llena (500 coches))
+          crear nuevo coche y meterlo en la lista de espera
+        calcular el tiempo de la prOxima llegada
+
+      mientras haya coches en la lista de espera
+        hc=tomar primer coche de la lista
+        Wait(Mu[algoritmo])
+          posBuena=Calcular la posiciOn buena
+          vuestraPos=Pedir la posiciOn a vuestra funciOn
+          poner en hc la posiciOn buena
+          if (vuestraPos==-2)
+            hacer que prOxima llegada sea infinito
+            vaciar la lista de espera
+            Signal(Mu[algoritmo])
+            break
+          if (posBuena!=vuestraPos)
+            poner el error
+            Signal(Mu[algoritmo])
+            break
+          if (vuestraPos==-1)
+            Signal(Mu[algoritmo])
+            break
+          Sacar el coche de la lista de espera
+          Reservar la acera
+        Signal(Mu[algoritmo])
+
+    Aparcar: (la realiza un hilo independiente)
+    ========
+    si no le toca a este coche, poner el error
+    incrementar el nUmero que toca
+    almacenar el puntero de los datos de usuario pasado en el coche
+    desde la pos=79 hasta la posición en que el coche tiene que aparcarse
+      pausa de avance
+      llamar a permiso de avance
+      dibujar el coche
+      llamar a permiso de avance commit
+      si pos=79, llamar a aparcar commit
+    hacer lo mismo para los dos avances verticales para acabar de aparcar
+    Wait(Mu[algoritmo])
+      encolar el coche en los recién aparcados
+      avisar al hilo de la simulaciOn
+    Signal(Mu[algoritmo])
+    
+    Desaparcar: (la realiza un hilo independiente)
+    ===========
+    permiso avance, dibujo y llamar a avance commit para el primer avance vertical
+    permiso avance para el segundo avance vertical
+    Wait(Mu[algoritmo])
+      dibujar el coche
+      liberar la reserva de la acera
+      llamar a permiso avance commit
+    Signal(Mu[algoritmo])
+    hasta que el coche desaparece: pausa, permiso avance, dibujo, llamar a avance commit
+    Wait(Mu[algoritmo])
+      meter el coche en la lista de recién desaparcados
+      avisar al hilo de la simulaciOn
+    Signal(Mu[algoritmo])
+
+
+</pre></li>
+        <li><h3>Pasos recomendados para la realización de la práctica</h3>
+            En esta práctica, no os indicaremos los pasos que podéis
+            seguir. El proceso de aprendizaje es duro, y ya llega el momento
+            en que debéis andar vuestros propios pasos sin ayuda, aunque exista 
+            la posibilidad de caerse al principio.
+            <br><br></li>
+        <li><h3>Plazo de presentación.</h3>
+            Consúltese la página de entrada de la asignatura.
+            <br><br></li>
+        <li><h3>Normas de presentación.</h3>
+            <a href="normas.htm">Acá</a> están.
+            Además de estas normas, en esta práctica se debe entregar
+            un esquema donde aparezcan los mecanismos de sincronización 
+            usados, sus valores iniciales y un seudocódigo sencillo para cada
+            hilo con las operaciones realizadas sobre ellos. Por ejemplo, 
+            si se tratara de sincronizar con eventos dos hilos C y V 
+            para que produjeran
+            alternativamente consonantes y vocales, comenzando por
+            una consonante, deberíais entregar algo parecido a esto:
+<pre>     EVENTOS Y VALOR INICIAL: EC* (automático), EV (automático).
+
+     SEUDOCÓDIGO:
+
+             C                                V
+            ===                              ===
+       Por_siempre_jamás               Por _siempre_jamás
+          {                               {
+           W(EC)                           W(EV)
+           escribir_consonante             escribir_vocal
+           Set(EV)                         Set(EC)
+           }                               }
+</pre>
+            Debéis indicar, asimismo, en el caso de que las hayáis
+            realizado, las optimizaciones de código realizadas.
+            <br><br></li>
+        <li><h3>Evaluación de la práctica.</h3>
+            Dada la dificultad para la corrección de programación
+            en paralelo, el criterio que se seguirá para la evaluación
+            de la práctica será: si
+            <ol type="a">
+                <li>la práctica cumple las especificaciones de este
+                    enunciado y,</li>
+                <li>la práctica no falla en ninguna de las ejecuciones
+                    a las que se somete y,</li>
+                <li>no se descubre en la práctica ningún fallo de
+                    construcción que pudiera hacerla fallar, por
+                    muy remota que sea esa posibilidad...</li>
+            </ol>
+            se aplicará el principio de "presunción de inocencia"
+            y la práctica estará aprobada. La nota, a partir de ahí,
+            dependerá de la simplicidad de las técnicas de sincronización
+            usadas, de las optimizaciones realizadas para producir
+            más aparcamientos, etc.
+            <br><br></li>
+        <li><h3>LPEs.</h3>
+            <ol type="I">
+                <li>No debéis usar la función
+                    <code>TerminateThread</code> para acabar con
+                    los hilos o <code>TerminateProcess</code> para acabar con
+                    los procesos. El problema de estas funciones es que
+                    están diseñada para ser usada sólo en condiciones
+                    excepcionales y los hilos mueren abruptamente.
+                    Puede dejar estructuras colgando, ir llenando
+                    la memoria virtual del proceso con basura o no
+                    invocar adecuadamente las funciones de descarga de la
+                    DLL.
+                    <br><br></li>
+                <li>Al ejecutar la práctica, no puedo ver lo que pasa,
+                    porque la ventana se cierra justo al acabar.<br><br>
+                    Para evitar esto, ejecutad la práctica desde el
+                    "Símbolo del sistema", que se encuentra en el menú
+                    de "Accesorios". <strong>También es necesario que la
+                    ventana que uséis tenga un tamaño de 80x25 caracteres.
+                    Si no lo tenéis así, cambiadlo en el menú de 
+                    propiedades de la ventana.</strong>
+                    <br><br></li>
+                <li>Al ejecutar la función <code>LoadLibrary</code>, en
+                    lugar de aparecer la pantalla de presentación, aparece
+                    un mensaje que pone 
+                    "<code>En DllMain</code>".<br><br>
+                    <strong>Es necesario que la
+                    ventana que uséis tenga un tamaño de 80x25 caracteres.
+                    Si no lo tenéis así, cambiadlo en el menú de 
+                    propiedades de la ventana.</strong>
+                    <br><br></li>
+                <li>Cuando ejecuto la práctica depurando la pantalla se
+                    emborrona. ¿Cómo lo puedo arreglar?<br><br> 
+                    Mejor depurad
+                    la práctica enviando la información de trazado escrita
+                    con <code>fprintf(stderr,...)</code> a
+                    un fichero, añadiendo al final de la línea de órdenes
+                    <code>2&gt;salida</code>. De este modo, toda la información
+                    aparecerá en el fichero <code>salida</code> para su
+                    análisis posterior. No os olvidéis de incluir el
+                    identificador del hilo que escribe el mensaje.
+                    <br><br></li>
+                <li>Tengo muchos problemas a la hora de llamar a la función
+                    <code>XXXX</code> de la biblioteca. No consigo de
+                    ningún modo acceder a ella.<br><br>
+                    El proceso detallado viene en la última sesión. De
+                    todos modos, soléis tener problemas en una conversión
+                    de tipos, aunque no os deis cuenta de ello. No vamos
+                    a deciros qué es lo que tenéis que poner para que
+                    funcione, pues lo pondríais y no aprenderíais nada.
+                    Sin embargo y dada la cantidad de personas con problemas,
+                    aquí viene una pequeña guía:
+                    <ol>
+                        <li>Primero debéis definir una variable puntero
+                            a función. El nombre de la variable es
+                            irrelevante, pero podemos llamarle 
+                            <code>XXXX</code> por lo que veremos más
+                            abajo. Para definir el tipo de esta variable
+                            correctamente, debéis conocer cómo son los
+                            punteros a función. En la
+                            última sesión de Sistemas Operativos I,
+                            se describe una función, <code>atexit</code>.
+                            Dicha función en sí no es importante para lo
+                            que nos traemos entre manos, pero sí el argumento
+                            que tiene. Ese argumento es un puntero a función.
+                            Fijándoos en ese argumento, no os resultará
+                            difícil generalizarlo para poner un puntero
+                            a funciones que admiten otro tipo de parámetros
+                            y devuelve otra cosa.
+                            Notad, además, que, al contrario que
+                            ocurre con las variables "normales", 
+                            la definición
+                            de una variable puntero a función es especial
+                            por cuanto su definición no va solo antes del
+                            nombre de la variable, sino que lo rodea.
+                            Tenéis que poner algo similar a:
+                            <code> #$%&amp;%$ XXXX $%&amp;$·@;</code>, es decir,
+                            algo por delante y algo por detrás.</li>
+                        <li>Después de cargar la biblioteca como dice
+                            en la última sesión, debéis dar valor al
+                            puntero de función. Dicho valor lo va a
+                            proporcionar <code>GetProcAddress</code>.
+                            Pero, ¡cuidado!, <code>GetProcAddress</code>
+                            devuelve un <code>FARPROC</code>, que sólo
+                            funciona con punteros a funciones que devuelven
+                            <code>int</code> y no se les pasa nada
+                            <code>(void)</code>. Debéis hacer el
+                            correspondiente <i>casting</i>. Para ello,
+                            de la definición de vuestro puntero, quitáis
+                            el nombre, lo ponéis todo entre paréntesis
+                            y lo añadís delante de 
+                            <code>GetProcAddress</code>, como siempre.</li>
+                        <li>Ya podéis llamar a la función como si de una
+                            función normal se tratara. Ponéis el nombre
+                            del puntero y los argumentos entre paréntesis.
+                            Como os advertí más arriba, si habéis puesto
+                            <code>XXXX</code> como nombre al puntero,
+                            ahora no se diferenciarán en nada vuestras
+                            llamadas a la función respecto a si dicha
+                            función no perteneciera a una DLL y la
+                            hubierais programado vosotros.</li>
+                    </ol>
+                    <br><br></li>
+                <li>Os puede dar errores en el fichero de cabecera
+                    <code>.h</code> si llamáis a vuestro
+                    fichero fuente con extensión <code>.c</code>. Llamadlo
+                    siempre con extensión <code>.cpp</code>.
+                    <br><br></li>
+                <li>Tened mucho cuidado si usáis funciones de memoria
+                    dinámicas de <code>libc</code> (<code>malloc</code>
+                    y <code>free</code>). Son funciones que no <i>están
+                    sincronizadas</i>, es decir, no se comportan bien
+                    en entornos multihilo. O bien las metéis en una
+                    sección crítica o, mejor aún, tratad de evitarlas.
+                    <br><br></li>
+                <li>En algunas versiones de Visual Studio os puede dar un
+                    error del tipo: <code>error XXXXX: 'FuncionW': no se
+                    puede convertir de 'const char[X]' a 'LPCWSTR'</code>.
+                    El motivo del error es que, por defecto, esa versión
+                    de Visual Studio supone que deseáis usar UNICODE
+                    (caracteres de 16 bits) en lugar de los normales
+                    (caracteres de 8 bits).  La solución pasa por
+                    transformar el código fuente para que se ajuste
+                    a la programación en UNICODE de Microsoft o
+                    decirle a Visual Studio que no, que no queréis
+                    trabajar con UNICODE.  Unos compañeros vuestros
+                    nos escriben diciendo que si en la configuración
+                    del proyecto seleccionáis 
+                    "Juego de Caracteres-&gt;Sin establecer", se soluciona.
+                    <br><br></li>
+                <li>Cuando ejecuto la práctica depurando me aparece
+                    <code>Se ha producido un choque...</code>. 
+                    Cuando examino la casilla, compruebo
+                    que todo es correcto. ¿A qué puede ser debido?<br><br>
+                    Este mensaje u otros similares que parecen estar
+                    equivocados tienen su razón en que estáis "manchando"
+                    la pantalla con mensajes propios o de depuración.
+                    Para evitar este tipo de mensajes, mejor depurad
+                    la práctica enviando la información de trazado a
+                    un fichero añadiendo al final de la línea de órdenes
+                    <code>2&gt;salida</code>. De este modo, toda la información
+                    aparecerá en el fichero <code>salida</code>.</li>
+            </ol>
+            <br><br></li>
+    </ol>
+<hr>
+© 2004 2017 Guillermo González Talaván.
+<hr>
+
+
+</body></html>
