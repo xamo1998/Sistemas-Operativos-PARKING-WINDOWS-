@@ -1,0 +1,4 @@
+﻿  Parking2.cpp
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.h(15): warning C4477: 'fprintf' : format string '%s' requires an argument of type 'char *', but variadic argument 3 has type 'LPVOID'
+Parking2.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
+  Parking2.vcxproj -> C:\Users\xamo1\Documents\SSOOII\Sistemas-Operativos-PARKING-WINDOWS-\Parking2\Debug\Parking2.exe
