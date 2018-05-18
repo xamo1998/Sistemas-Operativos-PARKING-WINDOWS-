@@ -4,18 +4,18 @@ c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\pa
 c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(70): warning C4091: 'typedef ': ignored on left of 'Data' when no variable is declared
 c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(76): warning C4101: 'i': unreferenced local variable
 c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(162): warning C4101: 'dataMem': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(220): warning C4101: 'dataMem': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(343): warning C4101: 'dataMem': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(344): warning C4101: 'valor': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(511): warning C4101: 'i': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(565): warning C4101: 'i': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(659): warning C4101: 'i': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(668): warning C4229: anachronism used: modifiers on data are ignored
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(667): warning C4101: 'i': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(680): warning C4101: 'i': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(694): warning C4229: anachronism used: modifiers on data are ignored
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(693): warning C4101: 'i': unreferenced local variable
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(707): warning C4229: anachronism used: modifiers on data are ignored
-c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(706): warning C4101: 'i': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(222): warning C4101: 'dataMem': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(349): warning C4101: 'dataMem': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(350): warning C4101: 'valor': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(518): warning C4101: 'i': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(572): warning C4101: 'i': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(666): warning C4101: 'i': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(675): warning C4229: anachronism used: modifiers on data are ignored
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(674): warning C4101: 'i': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(687): warning C4101: 'i': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(701): warning C4229: anachronism used: modifiers on data are ignored
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(700): warning C4101: 'i': unreferenced local variable
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(714): warning C4229: anachronism used: modifiers on data are ignored
+c:\users\xamo1\documents\ssooii\sistemas-operativos-parking-windows-\parking2\parking2\parking2.cpp(713): warning C4101: 'i': unreferenced local variable
 Parking2.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
   Parking2.vcxproj -> C:\Users\xamo1\Documents\SSOOII\Sistemas-Operativos-PARKING-WINDOWS-\Parking2\Debug\Parking2.exe
